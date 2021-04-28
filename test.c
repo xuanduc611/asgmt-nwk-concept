@@ -1,10 +1,11 @@
 #include <stdio.h>
-#include "./ip_math/ip_math.h"
+#include <stdint.h>
+#include "ip_math.h"
 
 int main(int argc, char **argv)
 {
     char str[100];
-    unsigned int ip;
+    uint32_t ip;
 
     get_addr_str_format(3232235892, str);
     printf("Test get_str_ip_format(): %s\n", str);
