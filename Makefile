@@ -10,7 +10,7 @@ all : $(MAINEXE)
 
 # Generate output and link object files
 $(MAINEXE): $(MAINOBJS)
-	$(CC) $(MAINOBJS) -o $@
+	$(CC) $(MAINOBJS) -o $@ -lm
 
 $(MAINOBJS): $(MAINDEP)
 
