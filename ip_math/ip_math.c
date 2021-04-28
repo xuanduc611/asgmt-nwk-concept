@@ -2,10 +2,25 @@
 #include <string.h>
 #include <stdlib.h>
 #include <stdint.h>
+#include <math.h>
 #include "ip_math.h"
 
-void get_broadcast_addr(const char *ip_addr, char mask, char *broadcast_addr)
-{;}
+void get_broadcast_addr(const char *ip_addr_str, const uint8_t mask_cidr, char *broadcast_addr_str)
+{
+    char nwk_id_str[20];
+    uint32_t nwk_id_int;
+    uint32_t mask;
+    uint32_t broadcast_addr_int;
+
+    // Get nwk_id:
+    get_network_id(ip_addr_str, mask_cidr, nwk_id_str);
+    nwk_id_int = get_addr_integer_equivalent(nwk_id_str);
+
+    // Get mask:
+    mask = 0xFFFFFFFF << (sizeof(uint32_t) * __CHAR_BIT__ - mask_cidr);
+    broadcast_addr_int = nwk_id_int | (~mask);
+    get_addr_str_format(broadcast_addr_int, broadcast_addr_str);
+}
 
 uint32_t get_addr_integer_equivalent(const char *addr_str)
 {
@@ -28,16 +43,32 @@ void get_network_id(const char *ip_addr_str, const uint8_t mask_cidr, char *nwk_
 {
     uint32_t ip_addr_int, nwk_id_int;
     uint32_t mask;
-
-    mask = 0xFFFFFFFF << (sizeof(uint32_t) - mask_cidr);
+    mask = 0xFFFFFFFF << (sizeof(uint32_t) * __CHAR_BIT__ - mask_cidr);
     ip_addr_int = get_addr_integer_equivalent(ip_addr_str);
     nwk_id_int = ip_addr_int & mask;
 
     get_addr_str_format(nwk_id_int, nwk_id_str);
 }
 
-void get_subnet_cardinality(const char mask)
-{;}
+uint32_t get_subnet_cardinality(const char mask_cidr)
+{
+    return (uint32_t)(pow(2, 32 - mask_cidr) - 2);
+}
 
-int is_subnet_membership(const char *nwk_id, const char mask, const char *check_ip)
-{return 1;}
+int is_subnet_membership(const char *src_nwk_id_str, const char mask_cidr, const char *check_ip_str)
+{
+    char check_nwk_id_str[20];
+    int result;
+
+    // Get check_nwk_id:
+    get_network_id(check_ip_str, mask_cidr, check_nwk_id_str);
+
+    // Compare:
+    result = strcmp(src_nwk_id_str, check_nwk_id_str);
+    
+    if (result == 0) {
+        return 1;
+    } else {
+        return 0;
+    }
+}
